@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #### **Project Name: Hyper-Local AQI Micro-Forecasting**
 
 
@@ -32,3 +33,7 @@
 
 * ###### Successfully visualized pollution hotspots (Red) vs. green zones (Green) on a real-world map of Ghaziabad.
 
+=======
+# HyperLocal-AQI-MicroForecasting
+Machine Learning model to predict air quality at 500m resolution.
+>>>>>>> 5e79747ed3ccbe0a06278f6b9b607ec7f32f1ef9
