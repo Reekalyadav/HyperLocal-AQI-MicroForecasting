@@ -36,4 +36,5 @@
 =======
 ##DEMO
 
-<img width="1852" height="882" alt="Screenshot 2026-04-18 231911" src="https://github.com/user-attachments/assets/bc4d08f1-258a-4b6c-b904-aeb0cc8ba5b6" />
+<img width="1858" height="917" alt="image" src="https://github.com/user-attachments/assets/c6ab29ad-e7ed-4f3f-9502-344b49767179" />
+
