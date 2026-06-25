@@ -1,42 +1,50 @@
-import folium
-import joblib
 import pandas as pd
+import joblib
+import folium
 
-# 1. Model load karo
-model = joblib.load("aqi_model.pkl")
+print("Saved Random Forest Model aur dataset load ho raha hai...")
+# Model aur current CSV load karein
+model = joblib.load('aqi_model.pkl')
+df = pd.read_csv('ghaziabad_aqi_data.csv')
 
-# 2. Map initialize karo (Ghaziabad ke coordinates par)
-m = folium.Map(location=[28.6692, 77.4538], zoom_start=12)
+# Features select karke model se final predictions nikalte hain
+X = df[['PM2.5', 'NO2', 'Traffic_Index', 'Distance_to_Highway', 'Distance_to_Park']]
+df['Predicted_AQI'] = model.predict(X)
 
-# 3. Hum kuch random points par prediction karke unhe map par dikhayenge
-# Hum purana data hi load kar lete hain dikhane ke liye
-df = pd.read_csv("ghaziabad_final_features.csv").head(50) # Pehle 50 points
+print("Ghaziabad ke center par Interactive Map ban raha hai...")
+# Ghaziabad ke center par map shuru karte hain
+m = folium.Map(location=[28.6692, 77.4538], zoom_start=13, tiles="OpenStreetMap")
 
-for index, row in df.iterrows():
-    # Prediction lena
-    features = [[row['latitude'], row['longitude'], row['satellite_no2'], 
-                 row['traffic_index'], row['dist_to_highway_km'], row['has_park_500m']]]
+# Map par color zones chunne ke liye helper function
+def get_aqi_color(aqi):
+    if aqi <= 50: return 'green'       # Safe
+    elif aqi <= 100: return 'yellow'   # Moderate
+    elif aqi <= 200: return 'orange'   # Unhealthy
+    else: return 'red'                 # Hazardous / Danger
+
+# Har ek coordinate par circle mark lagana
+for idx, row in df.iterrows():
+    color = get_aqi_color(row['Predicted_AQI'])
     
-    aqi_val = model.predict(features)[0]
+    popup_text = f"""
+    <b>Location Specific Air Quality</b><br>
+    Predicted AQI: {row['Predicted_AQI']:.2f}<br>
+    PM2.5: {row['PM2.5']:.1f}<br>
+    NO2: {row['NO2']:.1f}<br>
+    Traffic Index: {row['Traffic_Index']:.1f}
+    """
     
-    # --- YAHAN HAI COLOR KA LOGIC ---
-    if aqi_val > 250:
-        color = 'red'
-    elif aqi_val > 150:
-        color = 'orange'
-    else:
-        color = 'green'
-    
-    # Map par circle lagana
+    # Galti yahan theek kar di gayi h -> row['Longitude'] direct use kiya h
     folium.CircleMarker(
-        location=[row['latitude'], row['longitude']],
-        radius=10,
-        popup=f"AQI: {aqi_val:.2f}",
+        location=[row['Latitude'], row['Longitude']],
+        radius=8,
+        popup=folium.Popup(popup_text, max_width=250),
         color=color,
         fill=True,
-        fill_color=color
+        fill_color=color,
+        fill_opacity=0.6
     ).add_to(m)
 
-# 4. Map ko HTML file mein save karna
-m.save("aqi_map.html")
-print("Visual Map 'aqi_map.html' ke naam se save ho gaya hai. Isse browser me open karo.")
+# HTML file save karein
+m.save('aqi_map.html')
+print("Mubarak ho! 'aqi_map.html' naye live data ke sath successfully ban gaya hai.")
